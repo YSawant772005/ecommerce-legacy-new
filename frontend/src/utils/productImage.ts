@@ -20,7 +20,16 @@ const categoryImages: Record<string, string[]> = {
 }
 
 export function productImage(product: ImageProduct): string {
-  const category = product.categoryName?.toLowerCase().replace(/\s+/g, '-') || 'electronics'
+  const categoryText = `${product.categoryName || ''} ${product.name || ''}`.toLowerCase()
+  const category = categoryText.includes('home') || categoryText.includes('kitchen')
+    ? 'home-kitchen'
+    : categoryText.includes('fashion') || categoryText.includes('shirt') || categoryText.includes('sock') || categoryText.includes('dress')
+      ? 'fashion'
+      : categoryText.includes('book')
+        ? 'books'
+        : categoryText.includes('sport') || categoryText.includes('fitness')
+          ? 'sports'
+          : product.categoryName?.toLowerCase().replace(/\s+/g, '-') || 'electronics'
   const images = categoryImages[category] || categoryImages.electronics
   const key = `${product.id}-${product.name}`
   const hash = Array.from(key).reduce((total, character) => total + character.charCodeAt(0), 0)

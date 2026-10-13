@@ -18,7 +18,7 @@
         <div class="filters">
       <div class="search-wrap"><span>⌕</span><input v-model="searchQuery" placeholder="Search products..." @input="resetAndLoad" /></div>
 
-      <select v-model="sortBy" @change="loadProducts">
+      <select v-model="sortBy" @change="resetAndLoad">
         <option value="popular">Popular</option>
         <option value="price-asc">Price: Low to High</option>
         <option value="price-desc">Price: High to Low</option>
@@ -49,6 +49,9 @@
       <span>Page {{ currentPage }} of {{ catalogStore.totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next</button>
     </div>
+    <button v-if="currentPage < catalogStore.totalPages" class="load-more-button" :disabled="catalogStore.loading" @click="loadMore">
+      {{ catalogStore.loading ? 'Loading products...' : 'Load more products' }}
+    </button>
     <div ref="loadMoreMarker" class="load-more-marker">{{ catalogStore.loading ? 'Loading more products...' : currentPage < catalogStore.totalPages ? 'Scroll for more' : 'You reached the end of the collection' }}</div>
       </div>
     </div>
@@ -56,15 +59,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCatalogStore } from '../stores/catalog'
 import { useCartStore } from '../stores/cart'
 import { productImage } from '../utils/productImage'
 
 const catalogStore = useCatalogStore()
 const cartStore = useCartStore()
+const route = useRoute()
 
-const selectedCategory = ref<number | null>(null)
+const initialCategory = Number(route.query.categoryId)
+const selectedCategory = ref<number | null>(Number.isFinite(initialCategory) && initialCategory > 0 ? initialCategory : null)
 const searchQuery = ref('')
 const sortBy = ref('popular')
 const currentPage = ref(1)
@@ -116,15 +122,22 @@ async function loadMore() {
   })
 }
 
+function observeMarker() {
+  if (loadMoreMarker.value && observer) {
+    observer.observe(loadMoreMarker.value)
+  }
+}
+
 onMounted(() => {
   catalogStore.fetchCategories()
   loadProducts()
   observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) loadMore()
+    if (entry.isIntersecting && !catalogStore.loading) loadMore()
   }, { rootMargin: '500px' })
-  if (loadMoreMarker.value) observer.observe(loadMoreMarker.value)
+  observeMarker()
 })
 
+watch(loadMoreMarker, observeMarker)
 onBeforeUnmount(() => observer?.disconnect())
 </script>
 
@@ -169,6 +182,10 @@ onBeforeUnmount(() => observer?.disconnect())
 .card button:disabled { background: #cbc7d4; cursor: not-allowed; }
 .pagination button { border: 0; border-radius: 8px; background: #281568; color: #fff; }
 .pagination button:disabled { background: #dedbe5; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; color: #796e96; font-size: .75rem; }
+.pagination button { padding: .7rem 1rem; cursor: pointer; }
+.load-more-button { display: block; margin: 1.25rem auto 0; padding: .75rem 1.2rem; border: 0; border-radius: 999px; background: #0fe1d1; color: #24145f; font-weight: 800; cursor: pointer; }
+.load-more-button:disabled { opacity: .6; cursor: wait; }
 .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1.5rem; }
 .filter-rail { align-self: start; position: sticky; top: 1rem; padding: 1rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
 .rail-title { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #eeeaf4; color: #24145f; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
