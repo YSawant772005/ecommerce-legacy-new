@@ -27,6 +27,17 @@
       </select>
         </div>
 
+    <div class="catalog-controls" v-if="catalogStore.totalPages > 0">
+      <div class="pagination" aria-label="Product pagination">
+        <button @click="prevPage" :disabled="currentPage === 1">← Previous</button>
+        <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next →</button>
+      </div>
+      <button class="load-more-button" :disabled="catalogStore.loading || currentPage >= catalogStore.totalPages" @click="loadMore">
+        {{ catalogStore.loading ? 'Loading products...' : currentPage >= catalogStore.totalPages ? 'All products loaded' : 'Load more products ↓' }}
+      </button>
+    </div>
+
     <div class="grid" v-if="catalogStore.products.length">
       <div v-for="product in catalogStore.products" :key="product.id" class="card">
         <router-link :to="`/products/${product.id}`" class="image-wrap">
@@ -44,16 +55,6 @@
     </div>
     <p v-else-if="catalogStore.loading" class="loading-state">Loading the collection...</p>
 
-    <div class="catalog-controls" v-if="catalogStore.totalPages > 0">
-      <div class="pagination" aria-label="Product pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">← Previous</button>
-        <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next →</button>
-      </div>
-      <button class="load-more-button" :disabled="catalogStore.loading || currentPage >= catalogStore.totalPages" @click="loadMore">
-        {{ catalogStore.loading ? 'Loading products...' : currentPage >= catalogStore.totalPages ? 'All products loaded' : 'Load more products ↓' }}
-      </button>
-    </div>
     <div ref="loadMoreMarker" class="load-more-marker">{{ catalogStore.loading ? 'Loading more products...' : currentPage < catalogStore.totalPages ? 'Scroll for more' : 'You reached the end of the collection' }}</div>
       </div>
     </div>
