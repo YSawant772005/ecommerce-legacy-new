@@ -44,14 +44,16 @@
     </div>
     <p v-else-if="catalogStore.loading" class="loading-state">Loading the collection...</p>
 
-    <div class="pagination" v-if="catalogStore.totalPages > 1">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span>Page {{ currentPage }} of {{ catalogStore.totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next</button>
+    <div class="catalog-controls" v-if="catalogStore.totalPages > 0">
+      <div class="pagination" aria-label="Product pagination">
+        <button @click="prevPage" :disabled="currentPage === 1">← Previous</button>
+        <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next →</button>
+      </div>
+      <button class="load-more-button" :disabled="catalogStore.loading || currentPage >= catalogStore.totalPages" @click="loadMore">
+        {{ catalogStore.loading ? 'Loading products...' : currentPage >= catalogStore.totalPages ? 'All products loaded' : 'Load more products ↓' }}
+      </button>
     </div>
-    <button v-if="currentPage < catalogStore.totalPages" class="load-more-button" :disabled="catalogStore.loading" @click="loadMore">
-      {{ catalogStore.loading ? 'Loading products...' : 'Load more products' }}
-    </button>
     <div ref="loadMoreMarker" class="load-more-marker">{{ catalogStore.loading ? 'Loading more products...' : currentPage < catalogStore.totalPages ? 'Scroll for more' : 'You reached the end of the collection' }}</div>
       </div>
     </div>
@@ -180,12 +182,12 @@ onBeforeUnmount(() => observer?.disconnect())
 .card button { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; margin-top: .9rem; padding: .65rem; border: 0; border-radius: 8px; background: #281568; color: #fff; cursor: pointer; font-size: .75rem; font-weight: 700; }
 .card button span { color: #0fe1d1; font-size: 1.1rem; }
 .card button:disabled { background: #cbc7d4; cursor: not-allowed; }
-.pagination button { border: 0; border-radius: 8px; background: #281568; color: #fff; }
-.pagination button:disabled { background: #dedbe5; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; color: #796e96; font-size: .75rem; }
-.pagination button { padding: .7rem 1rem; cursor: pointer; }
-.load-more-button { display: block; margin: 1.25rem auto 0; padding: .75rem 1.2rem; border: 0; border-radius: 999px; background: #0fe1d1; color: #24145f; font-weight: 800; cursor: pointer; }
-.load-more-button:disabled { opacity: .6; cursor: wait; }
+.catalog-controls { display: grid; gap: 1rem; justify-items: center; margin-top: 2rem; padding: 1.2rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; color: #796e96; font-size: .75rem; }
+.pagination button { padding: .7rem 1rem; border: 0; border-radius: 8px; background: #281568; color: #fff; cursor: pointer; }
+.pagination button:disabled { background: #dedbe5; color: #8d879e; cursor: not-allowed; }
+.load-more-button { min-width: 210px; padding: .75rem 1.2rem; border: 0; border-radius: 999px; background: #0fe1d1; color: #24145f; font-weight: 800; cursor: pointer; }
+.load-more-button:disabled { opacity: .6; cursor: not-allowed; }
 .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1.5rem; }
 .filter-rail { align-self: start; position: sticky; top: 1rem; padding: 1rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
 .rail-title { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #eeeaf4; color: #24145f; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
