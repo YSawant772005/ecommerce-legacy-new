@@ -16,14 +16,7 @@
       </aside>
       <div class="catalog-results">
         <div class="filters">
-      <select v-model="selectedCategory" @change="loadProducts">
-        <option :value="null">All Categories</option>
-        <option v-for="category in catalogStore.categories" :key="category.id" :value="category.id">
-          {{ category.name }}
-        </option>
-      </select>
-
-      <div class="search-wrap"><span>⌕</span><input v-model="searchQuery" placeholder="Search products..." @input="loadProducts" /></div>
+      <div class="search-wrap"><span>⌕</span><input v-model="searchQuery" placeholder="Search products..." @input="resetAndLoad" /></div>
 
       <select v-model="sortBy" @change="loadProducts">
         <option value="popular">Popular</option>
@@ -79,7 +72,7 @@ const loadMoreMarker = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | undefined
 
 function loadProducts() {
-  catalogStore.fetchProducts({
+  return catalogStore.fetchProducts({
     page: currentPage.value,
     pageSize: 24,
     categoryId: selectedCategory.value || undefined,
@@ -90,7 +83,7 @@ function loadProducts() {
 
 function resetAndLoad() {
   currentPage.value = 1
-  loadProducts()
+  return loadProducts()
 }
 
 function addToCart(productId: number) {
@@ -109,7 +102,6 @@ function nextPage() {
     currentPage.value++
     loadProducts()
   }
-
 }
 
 async function loadMore() {
