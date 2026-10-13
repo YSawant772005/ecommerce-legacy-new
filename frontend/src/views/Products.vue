@@ -16,7 +16,7 @@
       </aside>
       <div class="catalog-results">
         <div class="filters">
-      <div class="search-wrap"><span>⌕</span><input v-model="searchQuery" placeholder="Search products..." @input="resetAndLoad" /></div>
+      <div class="search-wrap"><span>⌕</span><input v-model="searchQuery" placeholder="Search products..." @input="scheduleSearch" /></div>
 
       <select v-model="sortBy" @change="resetAndLoad">
         <option value="popular">Popular</option>
@@ -26,17 +26,6 @@
         <option value="new">Newest</option>
       </select>
         </div>
-
-    <div class="catalog-controls" v-if="catalogStore.totalPages > 0">
-      <div class="pagination" aria-label="Product pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">← Previous</button>
-        <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next →</button>
-      </div>
-      <button class="load-more-button" :disabled="catalogStore.loading || currentPage >= catalogStore.totalPages" @click="loadMore">
-        {{ catalogStore.loading ? 'Loading products...' : currentPage >= catalogStore.totalPages ? 'All products loaded' : 'Load more products ↓' }}
-      </button>
-    </div>
 
     <div class="grid" v-if="catalogStore.products.length">
       <div v-for="product in catalogStore.products" :key="product.id" class="card">
@@ -54,8 +43,27 @@
       </div>
     </div>
     <p v-else-if="catalogStore.loading" class="loading-state">Loading the collection...</p>
+    <div v-else-if="catalogStore.error" class="catalog-error initial-error">
+      <span>{{ catalogStore.error }}</span>
+      <button @click="resetAndLoad">Retry</button>
+    </div>
 
-    <div ref="loadMoreMarker" class="load-more-marker">{{ catalogStore.loading ? 'Loading more products...' : currentPage < catalogStore.totalPages ? 'Scroll for more' : 'You reached the end of the collection' }}</div>
+    <div class="catalog-footer" v-if="catalogStore.totalPages > 0">
+      <div v-if="catalogStore.error" class="catalog-error">
+        <span>{{ catalogStore.error }}</span>
+        <button @click="retryLoadMore">Retry</button>
+      </div>
+      <span v-else-if="catalogStore.loading" class="loading-indicator"><i></i> Loading more products...</span>
+      <span v-else-if="currentPage >= catalogStore.totalPages" class="end-indicator">You reached the end of the collection</span>
+      <span v-else class="scroll-hint">Scroll for more products</span>
+      <div class="pagination" aria-label="Product pagination">
+        <button @click="prevPage" :disabled="currentPage === 1 || catalogStore.loading">← Previous</button>
+        <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages || catalogStore.loading">Next →</button>
+      </div>
+      <button v-if="currentPage < catalogStore.totalPages && catalogStore.error" class="load-more-button" @click="retryLoadMore">Load more products</button>
+      <div ref="loadMoreMarker" class="load-more-marker" aria-hidden="true"></div>
+    </div>
       </div>
     </div>
   </div>
@@ -79,6 +87,7 @@ const sortBy = ref('popular')
 const currentPage = ref(1)
 const loadMoreMarker = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | undefined
+let searchTimer: ReturnType<typeof setTimeout> | undefined
 
 function loadProducts() {
   return catalogStore.fetchProducts({
@@ -92,7 +101,13 @@ function loadProducts() {
 
 function resetAndLoad() {
   currentPage.value = 1
+  catalogStore.clearError()
   return loadProducts()
+}
+
+function scheduleSearch() {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(resetAndLoad, 300)
 }
 
 function addToCart(productId: number) {
@@ -101,28 +116,43 @@ function addToCart(productId: number) {
 
 function prevPage() {
   if (currentPage.value > 1) {
-    currentPage.value--
-    loadProducts()
+    const page = currentPage.value - 1
+    loadProductsForPage(page)
   }
 }
 
 function nextPage() {
   if (currentPage.value < catalogStore.totalPages) {
-    currentPage.value++
-    loadProducts()
+    const page = currentPage.value + 1
+    loadProductsForPage(page)
+  }
+}
+
+async function loadProductsForPage(page: number) {
+  currentPage.value = page
+  try {
+    await loadProducts()
+  } catch {
+    currentPage.value = catalogStore.currentPage
   }
 }
 
 async function loadMore() {
-  if (currentPage.value >= catalogStore.totalPages || catalogStore.loading) return
-  currentPage.value++
-  await catalogStore.appendProducts({
-    page: currentPage.value,
+  if (currentPage.value >= catalogStore.totalPages || catalogStore.loading || catalogStore.error) return
+  const nextPage = currentPage.value + 1
+  const loaded = await catalogStore.appendProducts({
+    page: nextPage,
     pageSize: 24,
     categoryId: selectedCategory.value || undefined,
     search: searchQuery.value || undefined,
     sort: sortBy.value
   })
+  if (loaded) currentPage.value = nextPage
+}
+
+async function retryLoadMore() {
+  catalogStore.clearError()
+  await loadMore()
 }
 
 function observeMarker() {
@@ -183,12 +213,18 @@ onBeforeUnmount(() => observer?.disconnect())
 .card button { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; margin-top: .9rem; padding: .65rem; border: 0; border-radius: 8px; background: #281568; color: #fff; cursor: pointer; font-size: .75rem; font-weight: 700; }
 .card button span { color: #0fe1d1; font-size: 1.1rem; }
 .card button:disabled { background: #cbc7d4; cursor: not-allowed; }
-.catalog-controls { display: grid; gap: 1rem; justify-items: center; margin-top: 2rem; padding: 1.2rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
+.catalog-footer { display: grid; gap: 1rem; justify-items: center; margin-top: 2rem; padding: 1rem 0 .25rem; }
 .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; color: #796e96; font-size: .75rem; }
 .pagination button { padding: .7rem 1rem; border: 0; border-radius: 8px; background: #281568; color: #fff; cursor: pointer; }
 .pagination button:disabled { background: #dedbe5; color: #8d879e; cursor: not-allowed; }
 .load-more-button { min-width: 210px; padding: .75rem 1.2rem; border: 0; border-radius: 999px; background: #0fe1d1; color: #24145f; font-weight: 800; cursor: pointer; }
 .load-more-button:disabled { opacity: .6; cursor: not-allowed; }
+.loading-indicator, .scroll-hint, .end-indicator { color: #8d879e; font-size: .75rem; }
+.loading-indicator i { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border: 2px solid #d8d1e8; border-top-color: #9654db; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -1px; }
+.catalog-error { display: flex; align-items: center; gap: .75rem; color: #b33450; font-size: .75rem; }
+.catalog-error button { padding: .45rem .75rem; border: 1px solid #b33450; border-radius: 999px; background: #fff; color: #b33450; cursor: pointer; }
+.initial-error { justify-content: center; margin: 2rem 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1.5rem; }
 .filter-rail { align-self: start; position: sticky; top: 1rem; padding: 1rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
 .rail-title { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #eeeaf4; color: #24145f; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
