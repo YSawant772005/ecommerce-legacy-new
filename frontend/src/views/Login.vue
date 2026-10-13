@@ -1,7 +1,7 @@
 <template>
   <div class="auth-page">
     <div class="auth-container">
-      <h1>Login</h1>
+      <p class="eyebrow">WELCOME TO NOVAKART</p><h1>Come on in.</h1>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label>Email</label>
@@ -55,16 +55,19 @@ async function handleLogin() {
   align-items: center;
   min-height: calc(100vh - 120px);
   padding: 2rem;
+  background:linear-gradient(135deg,#fbfaff 50%,#0fe1d1 50%);
 }
 
 .auth-container {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(36,20,95,.14);
   width: 100%;
   max-width: 400px;
 }
+.eyebrow { color:#9654db; font-size:.68rem; font-weight:800; letter-spacing:.18em; }
+.auth-container h1 { color:#24145f; font-size:3.6rem; letter-spacing:-.08em; margin:.5rem 0 2rem; }
 
 .form-group {
   margin-bottom: 1rem;
@@ -77,15 +80,15 @@ async function handleLogin() {
 
 .form-group input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.8rem;
+  border: 1px solid #e8e3f1;
   border-radius: 4px;
 }
 
 button {
   width: 100%;
   padding: 0.75rem;
-  background: #e63946;
+  background: #24145f;
   color: white;
   border: none;
   cursor: pointer;
@@ -108,7 +111,7 @@ button:disabled {
 }
 
 .link a {
-  color: #667eea;
+  color: #9654db;
   text-decoration: none;
 }
 </style>

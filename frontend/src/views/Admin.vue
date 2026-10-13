@@ -1,7 +1,7 @@
 <template>
   <div class="admin">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, Admin</p>
+    <p class="eyebrow">NOVAKART CONTROL ROOM</p><h1>Good morning,<br><span>Admin.</span></h1>
+    <p class="intro">A clear view of your store, from today’s revenue to the orders that need attention.</p>
 
     <div class="stats-grid" v-if="dashboard">
       <div class="stat-card">
@@ -90,10 +90,14 @@ onMounted(() => {
 
 <style scoped>
 .admin {
-  padding: 2rem;
-  max-width: 1200px;
+  padding: 4rem max(1.5rem, calc((100% - 1120px) / 2));
+  background:#fbfaff; color:#24145f; min-height:calc(100vh - 100px);
   margin: 0 auto;
 }
+.eyebrow { color:#9654db; font-size:.68rem; font-weight:800; letter-spacing:.18em; }
+.admin h1 { font-size:clamp(2.8rem,6vw,5rem); line-height:.9; letter-spacing:-.08em; margin:.5rem 0 1rem; }
+.admin h1 span { color:#9654db; }
+.intro { color:#796e96; max-width:520px; margin-bottom:2.5rem; }
 
 .stats-grid {
   display: grid;
@@ -103,7 +107,7 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: #f5f5f5;
+  background: #fff; border:1px solid #e8e3f1;
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
@@ -123,7 +127,7 @@ onMounted(() => {
 .stat-value {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: #24145f;
 }
 
 .admin-menu {
@@ -134,7 +138,7 @@ onMounted(() => {
 }
 
 .admin-link {
-  background: #667eea;
+  background: #24145f;
   color: white;
   padding: 1.5rem;
   text-align: center;
@@ -144,7 +148,7 @@ onMounted(() => {
 }
 
 .recent-orders {
-  background: #f5f5f5;
+  background: #fff; border:1px solid #e8e3f1;
   padding: 2rem;
   border-radius: 8px;
 }
@@ -162,7 +166,7 @@ onMounted(() => {
 }
 
 .recent-orders th {
-  background: #667eea;
+  background: #0fe1d1; color:#24145f;
   color: white;
 }
 </style>

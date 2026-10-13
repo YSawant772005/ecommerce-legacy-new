@@ -1,6 +1,6 @@
 <template>
   <div class="checkout">
-    <h1>Checkout</h1>
+    <p class="eyebrow">FINAL STEP</p><h1>Make it yours.</h1>
 
     <form @submit.prevent="handleCheckout" v-if="cartStore.cart && cartStore.cart.items.length > 0">
       <div class="form-section">
@@ -135,13 +135,16 @@ onMounted(() => {
 
 <style scoped>
 .checkout {
-  padding: 2rem;
-  max-width: 800px;
+  padding: 4rem max(1.5rem, calc((100% - 1000px) / 2));
+  color:#24145f; background:#fbfaff; min-height:calc(100vh - 100px);
   margin: 0 auto;
 }
+.eyebrow { color:#9654db; font-size:.68rem; font-weight:800; letter-spacing:.18em; }
+.checkout h1 { font-size:clamp(2.8rem,6vw,5rem); letter-spacing:-.08em; margin:.5rem 0 3rem; }
+.checkout form { display:grid; grid-template-columns:1fr .8fr; gap:2rem; }
 
 .form-section {
-  margin-bottom: 2rem;
+  margin-bottom: 2rem; background:#fff; border:1px solid #e8e3f1; border-radius:16px; padding:1.5rem;
 }
 
 .form-group {
@@ -155,17 +158,19 @@ onMounted(() => {
 
 .form-group input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.8rem;
+  border: 1px solid #e8e3f1;
   border-radius: 4px;
 }
 
 .order-summary {
-  background: #f5f5f5;
+  background: #24145f; color:white;
   padding: 2rem;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
+.checkout > form > button { grid-column:2; border:0; background:#0fe1d1; color:#24145f; padding:1rem; border-radius:999px; font-weight:800; cursor:pointer; }
+@media (max-width:760px) { .checkout form { grid-template-columns:1fr; } .checkout > form > button { grid-column:auto; } }
 
 .summary-row {
   display: flex;

@@ -4,6 +4,7 @@
     <nav class="navbar">
       <div class="container nav-container">
         <router-link to="/" class="logo"><span>NK</span> NovaKart</router-link>
+        <router-link to="/products" class="nav-search">⌕ <span>Search the collection</span></router-link>
         <div class="nav-links">
           <router-link to="/">Home</router-link>
           <router-link to="/products">Products</router-link>
@@ -13,7 +14,7 @@
           <router-link v-else to="/account">Account</router-link>
           <router-link v-if="authStore.isAuthenticated" to="/wishlist">Wishlist</router-link>
           <router-link v-if="authStore.isAdmin" to="/admin">Admin</router-link>
-          <router-link v-if="authStore.isAuthenticated" to="/cart" class="cart-link">Cart <b>{{ cartStore.itemCount }}</b></router-link>
+          <router-link v-if="authStore.isAuthenticated" to="/cart" class="cart-link">Bag <b>{{ cartStore.itemCount }}</b></router-link>
           <button v-if="authStore.isAuthenticated" @click="authStore.logout">Logout</button>
         </div>
       </div>
@@ -92,6 +93,7 @@ onMounted(() => {
 
 .nav-container {
   min-height: 42px;
+  gap: 1.5rem;
 }
 
 .logo {
@@ -121,6 +123,17 @@ onMounted(() => {
   font-size: 0.78rem;
   font-weight: 600;
 }
+
+.nav-search {
+  margin-left: auto;
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.35);
+  padding: .45rem 0;
+  font-size: .78rem;
+}
+
+.nav-search span { margin-left: .35rem; opacity: .65; }
 
 .announcement {
   font-size: .56rem;
@@ -191,6 +204,8 @@ onMounted(() => {
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+
+  .nav-search { display: none; }
 
   .nav-links a:nth-child(n+4) {
     display: none;
