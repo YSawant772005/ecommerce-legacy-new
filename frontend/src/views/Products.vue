@@ -5,7 +5,17 @@
       <span class="result-count">{{ catalogStore.totalCount }} products</span>
     </div>
 
-    <div class="filters">
+    <div class="catalog-layout">
+      <aside class="filter-rail">
+        <div class="rail-title"><span>FILTERS</span><span>⌘</span></div>
+        <label>Category<select v-model="selectedCategory" @change="resetAndLoad">
+          <option :value="null">All categories</option>
+          <option v-for="category in catalogStore.categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+        </select></label>
+        <div class="rail-note"><strong>Curated for you</strong><span>New arrivals, bestsellers and everyday essentials.</span></div>
+      </aside>
+      <div class="catalog-results">
+        <div class="filters">
       <select v-model="selectedCategory" @change="loadProducts">
         <option :value="null">All Categories</option>
         <option v-for="category in catalogStore.categories" :key="category.id" :value="category.id">
@@ -22,9 +32,9 @@
         <option value="rating">Rating</option>
         <option value="new">Newest</option>
       </select>
-    </div>
+        </div>
 
-    <div class="grid" v-if="!catalogStore.loading">
+    <div class="grid" v-if="catalogStore.products.length">
       <div v-for="product in catalogStore.products" :key="product.id" class="card">
         <router-link :to="`/products/${product.id}`" class="image-wrap">
           <img :src="productImage(product)" :alt="product.name" />
@@ -39,18 +49,21 @@
         </div>
       </div>
     </div>
-    <p v-else>Loading...</p>
+    <p v-else-if="catalogStore.loading" class="loading-state">Loading the collection...</p>
 
     <div class="pagination" v-if="catalogStore.totalPages > 1">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>Page {{ currentPage }} of {{ catalogStore.totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages">Next</button>
     </div>
+    <div ref="loadMoreMarker" class="load-more-marker">{{ catalogStore.loading ? 'Loading more products...' : currentPage < catalogStore.totalPages ? 'Scroll for more' : 'You reached the end of the collection' }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useCatalogStore } from '../stores/catalog'
 import { useCartStore } from '../stores/cart'
 import { productImage } from '../utils/productImage'
@@ -62,6 +75,8 @@ const selectedCategory = ref<number | null>(null)
 const searchQuery = ref('')
 const sortBy = ref('popular')
 const currentPage = ref(1)
+const loadMoreMarker = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | undefined
 
 function loadProducts() {
   catalogStore.fetchProducts({
@@ -71,6 +86,11 @@ function loadProducts() {
     search: searchQuery.value || undefined,
     sort: sortBy.value
   })
+}
+
+function resetAndLoad() {
+  currentPage.value = 1
+  loadProducts()
 }
 
 function addToCart(productId: number) {
@@ -89,12 +109,31 @@ function nextPage() {
     currentPage.value++
     loadProducts()
   }
+
+}
+
+async function loadMore() {
+  if (currentPage.value >= catalogStore.totalPages || catalogStore.loading) return
+  currentPage.value++
+  await catalogStore.appendProducts({
+    page: currentPage.value,
+    pageSize: 24,
+    categoryId: selectedCategory.value || undefined,
+    search: searchQuery.value || undefined,
+    sort: sortBy.value
+  })
 }
 
 onMounted(() => {
   catalogStore.fetchCategories()
   loadProducts()
+  observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) loadMore()
+  }, { rootMargin: '500px' })
+  if (loadMoreMarker.value) observer.observe(loadMoreMarker.value)
 })
+
+onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <style scoped>
@@ -138,7 +177,16 @@ onMounted(() => {
 .card button:disabled { background: #cbc7d4; cursor: not-allowed; }
 .pagination button { border: 0; border-radius: 8px; background: #281568; color: #fff; }
 .pagination button:disabled { background: #dedbe5; }
+.catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1.5rem; }
+.filter-rail { align-self: start; position: sticky; top: 1rem; padding: 1rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
+.rail-title { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #eeeaf4; color: #24145f; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
+.filter-rail label { display: grid; gap: .5rem; padding-top: 1.2rem; color: #8a8397; font-size: .68rem; font-weight: 700; }
+.filter-rail select { width: 100%; padding: .6rem .4rem; border: 0; color: #24145f; font: inherit; font-size: .72rem; outline: 0; }
+.rail-note { display: grid; gap: .4rem; margin-top: 3rem; padding: .75rem; border-radius: 9px; background: #f2ecff; color: #24145f; font-size: .66rem; line-height: 1.4; }
+.rail-note span { color: #8a8397; }
+.loading-state, .load-more-marker { padding: 2rem; color: #8d879e; text-align: center; font-size: .75rem; }
 @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 850px) { .catalog-layout { grid-template-columns: 1fr; } .filter-rail { position: static; } .filter-rail .rail-note { display: none; } }
 @media (max-width: 560px) { .page-heading { align-items: start; flex-direction: column; gap: 1rem; } .grid { grid-template-columns: 1fr; } .image-wrap { height: 280px; }
 }
 </style>

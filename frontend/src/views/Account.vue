@@ -31,16 +31,21 @@ const authStore = useAuthStore()
 
 <style scoped>
 .account {
-  padding: 2rem;
-  max-width: 800px;
+  min-height: calc(100vh - 100px);
+  padding: 4rem max(1.5rem, calc((100% - 800px) / 2));
   margin: 0 auto;
+  color: #24145f;
+  background: #fbfaff;
 }
 
+.account h1 { margin: 0 0 2rem; font-size: clamp(2.7rem, 5vw, 4.5rem); letter-spacing: -.08em; }
 .account-info {
-  background: #f5f5f5;
+  background: #fff;
   padding: 2rem;
-  border-radius: 8px;
+  border: 1px solid #e8e3f1;
+  border-radius: 16px;
   margin-bottom: 2rem;
+  box-shadow: 0 12px 30px rgba(36,20,95,.06);
 }
 
 .account-info p {
@@ -49,10 +54,10 @@ const authStore = useAuthStore()
 
 .btn {
   display: inline-block;
-  background: #667eea;
+  background: #281568;
   color: white;
   padding: 0.75rem 2rem;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 999px;
 }
 </style>

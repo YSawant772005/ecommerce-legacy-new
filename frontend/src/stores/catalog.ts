@@ -33,6 +33,27 @@ export const useCatalogStore = defineStore('catalog', () => {
     } finally {
       loading.value = false
     }
+
+  }
+
+  async function appendProducts(filters: {
+    page: number
+    pageSize?: number
+    categoryId?: number
+    search?: string
+    sort?: string
+  }) {
+    if (loading.value || (filters.page > totalPages.value && totalPages.value > 0)) return
+    loading.value = true
+    try {
+      const response = await productsApi.getProducts(filters)
+      products.value = [...products.value, ...response.data.items]
+      totalCount.value = response.data.totalCount
+      currentPage.value = response.data.page
+      totalPages.value = response.data.totalPages
+    } finally {
+      loading.value = false
+    }
   }
 
   async function fetchProduct(id: number) {
@@ -49,6 +70,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     totalPages,
     fetchCategories,
     fetchProducts,
+    appendProducts,
     fetchProduct
   }
 })

@@ -65,10 +65,11 @@ import { useCatalogStore } from '../stores/catalog'
 import { useCartStore } from '../stores/cart'
 import Newsletter from './Newsletter.vue'
 import { productImage } from '../utils/productImage'
+import type { Product } from '../types'
 
 const catalogStore = useCatalogStore()
 const cartStore = useCartStore()
-const featuredProducts = computed(() => catalogStore.products.filter(p => p.isFeatured).slice(0, 8))
+const featuredProducts = computed(() => catalogStore.products.filter((p: Product) => p.isFeatured).slice(0, 8))
 
 function addToCart(productId: number) {
   cartStore.addToCart(productId)

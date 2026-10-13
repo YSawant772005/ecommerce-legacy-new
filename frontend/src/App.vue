@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <div class="announcement">Free delivery on orders over ₹999 <span>•</span> Easy returns within 7 days <span>•</span> Shop the NovaKart edit</div>
     <nav class="navbar">
       <div class="container nav-container">
         <router-link to="/" class="logo"><span>NK</span> NovaKart</router-link>
@@ -51,7 +52,7 @@ onMounted(() => {
 
 :global(body) {
   margin: 0;
-  background: #24145f;
+  background: #fbfaff;
   color: #21174d;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -64,6 +65,21 @@ onMounted(() => {
   background: #24145f;
   padding: 1.1rem 0;
   color: white;
+}
+
+.announcement {
+  padding: .45rem 1rem;
+  background: #0fe1d1;
+  color: #24145f;
+  text-align: center;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.announcement span {
+  padding: 0 .7rem;
+  opacity: .6;
 }
 
 .container {
@@ -104,6 +120,10 @@ onMounted(() => {
   align-items: center;
   font-size: 0.78rem;
   font-weight: 600;
+}
+
+.announcement {
+  font-size: .56rem;
 }
 
 .nav-links a {

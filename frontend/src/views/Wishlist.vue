@@ -40,50 +40,60 @@ onMounted(() => {
 
 <style scoped>
 .wishlist {
-  padding: 2rem;
-  max-width: 1200px;
+  min-height: calc(100vh - 100px);
+  padding: 4rem max(1.5rem, calc((100% - 1120px) / 2));
   margin: 0 auto;
+  color: #24145f;
+  background: #fbfaff;
 }
 
+.wishlist h1 { margin: 0 0 .55rem; font-size: clamp(2.7rem, 5vw, 4.5rem); letter-spacing: -.08em; }
+.wishlist > p { color: #8b8499; }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 .card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
+  overflow: hidden;
+  border: 1px solid #e8e3f1;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(36,20,95,.05);
 }
 
 .card img {
   width: 100%;
-  height: 200px;
+  height: 220px;
   object-fit: cover;
-  border-radius: 4px;
 }
 
+.card h3, .card p { padding: 0 1rem; }
+.card h3 { min-height: 2.5rem; margin: 1rem 0 .25rem; font-size: .92rem; }
 .price {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: bold;
-  color: #e63946;
+  color: #24145f;
 }
 
 .card button {
-  background: #e63946;
+  background: #281568;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: .65rem 1rem;
   cursor: pointer;
-  border-radius: 4px;
-  margin-top: 1rem;
+  border-radius: 8px;
+  margin: .4rem 1rem 1rem;
   width: 100%;
 }
 
 .remove-btn {
-  background: #666;
-  margin-top: 0.5rem;
+  background: #f0edf5 !important;
+  color: #6c647c !important;
+  margin-top: 0 !important;
 }
+
+@media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
 </style>

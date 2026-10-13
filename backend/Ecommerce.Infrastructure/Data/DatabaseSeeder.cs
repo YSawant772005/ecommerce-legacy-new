@@ -8,14 +8,60 @@ public static class DatabaseSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        // Idempotent — skip if data already present
-        if (await context.Products.AnyAsync())
+        var existingProducts = await context.Products.AsNoTracking().ToListAsync();
+        if (existingProducts.Count >= 2000)
         {
             return;
         }
 
         var rng = new Random(20261007);
         var now = DateTime.UtcNow;
+
+        // Complete an earlier smaller seed without duplicating existing records.
+        if (existingProducts.Count > 0)
+        {
+            var existingCategories = await context.Categories.AsNoTracking().ToListAsync();
+            var existingBrands = await context.Brands.AsNoTracking().ToListAsync();
+            var additions = new List<Product>();
+
+            for (var index = existingProducts.Count; index < 2000; index++)
+            {
+                var source = existingProducts[index % existingProducts.Count];
+                var category = existingCategories.FirstOrDefault(c => c.Id == source.CategoryId);
+                var brand = existingBrands.FirstOrDefault(b => b.Id == source.BrandId);
+                var suffix = $" Edition {index + 1}";
+                additions.Add(new Product
+                {
+                    Name = source.Name + suffix,
+                    Slug = $"{source.Slug}-{index + 1}",
+                    Sku = $"{source.Sku}-{index + 1}",
+                    ShortDescription = source.ShortDescription,
+                    Description = source.Description,
+                    Price = source.Price,
+                    ComparePrice = source.ComparePrice,
+                    Stock = rng.Next(5, 150),
+                    Rating = source.Rating,
+                    RatingCount = source.RatingCount,
+                    ReviewCount = source.ReviewCount,
+                    SoldCount = rng.Next(20, 2000),
+                    CategoryId = category?.Id ?? source.CategoryId,
+                    BrandId = brand?.Id ?? source.BrandId,
+                    ImageUrl = source.ImageUrl,
+                    ImageUrl2 = source.ImageUrl2,
+                    ImageUrl3 = source.ImageUrl3,
+                    Colors = source.Colors,
+                    Sizes = source.Sizes,
+                    IsFeatured = false,
+                    IsDeal = index % 17 == 0,
+                    IsNew = true,
+                    CreatedOn = now.AddDays(-rng.Next(1, 365))
+                });
+            }
+
+            context.Products.AddRange(additions);
+            await context.SaveChangesAsync();
+            return;
+        }
 
         // ── Categories ────────────────────────────────────────────────────────
         var categories = new List<Category>
@@ -339,6 +385,39 @@ public static class DatabaseSeeder
                     CreatedOn = now.AddDays(-rng.Next(1, 365))
                 });
             }
+        }
+
+        // Keep the seeded catalog useful for real browsing and infinite-scroll demos.
+        var baseProductCount = products.Count;
+        for (var index = baseProductCount; index < 2000; index++)
+        {
+            var source = products[index % baseProductCount];
+            products.Add(new Product
+            {
+                Name = $"{source.Name} Edition {index + 1}",
+                Slug = $"{source.Slug}-{index + 1}",
+                Sku = $"{source.Sku}-{index + 1}",
+                ShortDescription = source.ShortDescription,
+                Description = source.Description,
+                Price = source.Price,
+                ComparePrice = source.ComparePrice,
+                Stock = rng.Next(5, 150),
+                Rating = source.Rating,
+                RatingCount = source.RatingCount,
+                ReviewCount = source.ReviewCount,
+                SoldCount = rng.Next(20, 2000),
+                CategoryId = source.CategoryId,
+                BrandId = source.BrandId,
+                ImageUrl = source.ImageUrl,
+                ImageUrl2 = source.ImageUrl2,
+                ImageUrl3 = source.ImageUrl3,
+                Colors = source.Colors,
+                Sizes = source.Sizes,
+                IsFeatured = false,
+                IsDeal = index % 17 == 0,
+                IsNew = true,
+                CreatedOn = now.AddDays(-rng.Next(1, 365))
+            });
         }
 
         context.Products.AddRange(products);
