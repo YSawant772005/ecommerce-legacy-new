@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <nav class="navbar">
-      <div class="container">
-        <router-link to="/" class="logo">NovaKart</router-link>
+      <div class="container nav-container">
+        <router-link to="/" class="logo"><span>NK</span> NovaKart</router-link>
         <div class="nav-links">
+          <router-link to="/">Home</router-link>
           <router-link to="/products">Products</router-link>
           <router-link to="/contact">Contact</router-link>
           <router-link v-if="!authStore.isAuthenticated" to="/login">Login</router-link>
@@ -11,7 +12,7 @@
           <router-link v-else to="/account">Account</router-link>
           <router-link v-if="authStore.isAuthenticated" to="/wishlist">Wishlist</router-link>
           <router-link v-if="authStore.isAdmin" to="/admin">Admin</router-link>
-          <router-link v-if="authStore.isAuthenticated" to="/cart">Cart ({{ cartStore.itemCount }})</router-link>
+          <router-link v-if="authStore.isAuthenticated" to="/cart" class="cart-link">Cart <b>{{ cartStore.itemCount }}</b></router-link>
           <button v-if="authStore.isAuthenticated" @click="authStore.logout">Logout</button>
         </div>
       </div>
@@ -20,8 +21,9 @@
       <router-view />
     </main>
     <footer class="footer">
-      <div class="container">
-        <p>&copy; 2024 NovaKart. Modernized E-commerce Platform.</p>
+      <div class="container footer-content">
+        <p>&copy; 2026 NovaKart. Curated goods for modern living.</p>
+        <div><router-link to="/products">Shop</router-link><router-link to="/contact">Contact</router-link></div>
       </div>
     </footer>
   </div>
@@ -43,57 +45,141 @@ onMounted(() => {
 </script>
 
 <style scoped>
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(body) {
+  margin: 0;
+  background: #24145f;
+  color: #21174d;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:global(button), :global(input) {
+  font: inherit;
+}
+
 .navbar {
-  background: #1a1a1a;
-  padding: 1rem 0;
+  background: #24145f;
+  padding: 1.1rem 0;
   color: white;
 }
 
 .container {
-  max-width: 1200px;
+  width: min(1120px, calc(100% - 3rem));
   margin: 0 auto;
-  padding: 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.nav-container {
+  min-height: 42px;
+}
+
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   color: white;
   text-decoration: none;
+}
+
+.logo span {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 0.4rem;
+  border: 1px solid rgba(255,255,255,0.65);
+  border-radius: 50%;
+  font-size: 0.62rem;
+  letter-spacing: 0;
 }
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .nav-links a {
-  color: white;
+  color: rgba(255,255,255,0.8);
   text-decoration: none;
 }
 
+.nav-links a:hover,
+.nav-links a.router-link-active {
+  color: #fff;
+}
+
+.cart-link b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  margin-left: 3px;
+  border-radius: 20px;
+  background: #0fe1d1;
+  color: #24145f;
+  font-size: 0.65rem;
+}
+
 .nav-links button {
-  background: #e63946;
+  background: transparent;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255,255,255,0.55);
+  padding: 0.45rem 0.8rem;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 999px;
+  font-size: 0.75rem;
 }
 
 .main-content {
   min-height: calc(100vh - 120px);
-  padding: 2rem 0;
+  padding: 0 0 4rem;
 }
 
 .footer {
-  background: #1a1a1a;
+  background: #24145f;
   color: white;
-  padding: 2rem 0;
-  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.76rem;
+}
+
+.footer-content div {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .container {
+    width: min(100% - 2rem, 1120px);
+  }
+
+  .nav-links {
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .nav-links a:nth-child(n+4) {
+    display: none;
+  }
+
+  .footer-content {
+    align-items: flex-start;
+    gap: 1rem;
+    flex-direction: column;
+  }
 }
 </style>

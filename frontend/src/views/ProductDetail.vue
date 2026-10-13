@@ -2,7 +2,7 @@
   <div class="product-detail">
     <div v-if="product" class="product-container">
       <div class="product-image">
-        <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" />
+        <img :src="productImage(product)" :alt="product.name" />
       </div>
       <div class="product-info">
         <h1>{{ product.name }}</h1>
@@ -81,6 +81,7 @@ import { useWishlistStore } from '../stores/wishlist'
 import { useAuthStore } from '../stores/auth'
 import { reviewsApi } from '../api/reviews'
 import type { Product } from '../types'
+import { productImage } from '../utils/productImage'
 
 const route = useRoute()
 const catalogStore = useCatalogStore()
