@@ -1,0 +1,13 @@
+.vs/
+.idea/
+.vscode/
+
+**/bin/
+**/obj/
+**/node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
+backend/Ecommerce.Api/logs/
+*.user
+*.suo

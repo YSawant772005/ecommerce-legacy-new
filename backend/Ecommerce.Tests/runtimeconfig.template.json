@@ -1,0 +1,6 @@
+{
+  "configProperties": {
+    "System.Runtime.Loader.UseRidGraph": false,
+    "System.GC.HeapHardLimit": 0
+  }
+}
