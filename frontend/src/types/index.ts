@@ -76,6 +76,7 @@ export interface OrderItem {
   id: number
   productName: string
   imageUrl?: string
+  variant?: string
   unitPrice: number
   quantity: number
   lineTotal: number

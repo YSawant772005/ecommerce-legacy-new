@@ -49,7 +49,7 @@
             <img :src="productImage(product)" :alt="product.name" />
           </router-link>
           <div class="product-info"><h3>{{ product.name }}</h3><p>{{ product.categoryName || 'NovaKart edit' }}</p><strong>₹{{ product.price.toLocaleString('en-IN') }}</strong></div>
-          <button class="add-button" @click="addToCart(product.id)">+</button>
+          <button class="add-button" :class="{ 'is-added': cartStore.isAdding(product.id) }" :disabled="cartStore.isAdding(product.id)" :aria-label="`Add ${product.name} to cart`" @click="addToCart(product)">{{ cartStore.isAdding(product.id) ? '…' : '+' }}</button>
         </article>
       </div>
       <p v-else class="muted">Loading products...</p>
@@ -71,8 +71,8 @@ const catalogStore = useCatalogStore()
 const cartStore = useCartStore()
 const featuredProducts = computed(() => catalogStore.products.filter((p: Product) => p.isFeatured).slice(0, 8))
 
-function addToCart(productId: number) {
-  cartStore.addToCart(productId)
+function addToCart(product: Product) {
+  cartStore.addToCart(product.id, 1, undefined, product.name)
 }
 
 onMounted(() => {

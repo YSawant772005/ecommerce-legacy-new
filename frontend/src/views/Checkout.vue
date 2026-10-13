@@ -169,7 +169,7 @@ onMounted(() => {
   border-radius: 8px;
   margin-bottom: 2rem;
 }
-.checkout > form > button { grid-column:2; border:0; background:#0fe1d1; color:#24145f; padding:1rem; border-radius:999px; font-weight:800; cursor:pointer; }
+.checkout > form > button { grid-column:2; justify-self:end; width:min(220px, 100%); border:0; background:#0fe1d1; color:#24145f; padding:.75rem 1rem; border-radius:999px; font-weight:800; cursor:pointer; }
 @media (max-width:760px) { .checkout form { grid-template-columns:1fr; } .checkout > form > button { grid-column:auto; } }
 
 .summary-row {

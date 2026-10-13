@@ -113,20 +113,29 @@ public class CartController : ControllerBase
 
         var existingItem = await _context.CartItems
             .FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == request.ProductId);
+        var requestedQty = Math.Min(10, Math.Max(1, request.Qty));
+        var currentQty = existingItem?.Qty ?? 0;
+        var targetQty = Math.Min(10, currentQty + requestedQty);
+
+        if (product.Stock <= 0 || targetQty > product.Stock)
+        {
+            return BadRequest(new { error = product.Stock <= 0
+                ? "This product is out of stock."
+                : $"Only {Math.Max(0, product.Stock - currentQty)} item(s) are available." });
+        }
 
         if (existingItem != null)
         {
-            existingItem.Qty = Math.Min(10, existingItem.Qty + request.Qty);
+            existingItem.Qty = targetQty;
             existingItem.UpdatedOn = DateTime.UtcNow;
         }
         else
         {
-            var qty = Math.Min(10, Math.Max(1, request.Qty));
             _context.CartItems.Add(new CartItem
             {
                 UserId = userId,
                 ProductId = request.ProductId,
-                Qty = qty,
+                Qty = requestedQty,
                 Variant = request.Variant,
                 UpdatedOn = DateTime.UtcNow
             });

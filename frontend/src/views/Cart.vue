@@ -5,7 +5,11 @@
     <div v-if="!cartStore.loading && cartStore.cart && cartStore.cart.items.length > 0">
       <div class="cart-items">
         <div v-for="item in cartStore.cart.items" :key="item.productId" class="cart-item">
-          <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.productName" />
+          <img
+            :src="productImage({ id: item.productId, name: item.productName, imageUrl: item.imageUrl })"
+            :alt="item.productName"
+            @error="useFallbackImage"
+          />
           <div class="item-details">
             <h3>{{ item.productName }}</h3>
             <p>₹{{ item.unitPrice }}</p>
@@ -66,9 +70,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useCartStore } from '../stores/cart'
+import { productImage } from '../utils/productImage'
 
 const cartStore = useCartStore()
 const couponCode = ref('')
+const fallbackImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Crect width="400" height="400" fill="%23eeeaf7"/%3E%3Ctext x="200" y="210" text-anchor="middle" font-family="Arial" font-size="28" fill="%2324145f"%3ENovaKart%3C/text%3E%3C/svg%3E'
+
+function useFallbackImage(event: Event) {
+  const image = event.target as HTMLImageElement
+  if (image.src !== fallbackImage) image.src = fallbackImage
+}
 
 function updateQty(productId: number, qty: number) {
   if (qty <= 0) {

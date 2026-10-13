@@ -1,6 +1,6 @@
 import type { Product } from '../types'
 
-type ImageProduct = Pick<Product, 'id' | 'name' | 'categoryName'>
+type ImageProduct = Pick<Product, 'id' | 'name' | 'categoryName' | 'imageUrl'>
 
 const image = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`
 
@@ -20,6 +20,7 @@ const categoryImages: Record<string, string[]> = {
 }
 
 export function productImage(product: ImageProduct): string {
+  if (product.imageUrl && !product.imageUrl.includes('placehold.co')) return product.imageUrl
   const categoryText = `${product.categoryName || ''} ${product.name || ''}`.toLowerCase()
   const category = categoryText.includes('home') || categoryText.includes('kitchen')
     ? 'home-kitchen'

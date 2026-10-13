@@ -14,8 +14,8 @@
         <div class="rating">⭐ {{ product.rating }} ({{ product.reviewCount }} reviews)</div>
         <p class="stock">{{ product.inStock ? 'In Stock' : 'Out of Stock' }}</p>
         <p class="description">{{ product.description }}</p>
-        <button @click="addToCart" :disabled="!product.inStock">
-          {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+        <button :class="{ 'is-adding': product && cartStore.isAdding(product.id) }" @click="addToCart" :disabled="!product.inStock || cartStore.isAdding(product.id)">
+          {{ cartStore.isAdding(product.id) ? 'Adding…' : product.inStock ? 'Add to Cart' : 'Out of Stock' }}
         </button>
         <button @click="toggleWishlist" class="wishlist-btn">
           {{ isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
@@ -111,7 +111,7 @@ async function loadReviews() {
 
 function addToCart() {
   if (product.value) {
-    cartStore.addToCart(product.value.id)
+    cartStore.addToCart(product.value.id, 1, undefined, product.value.name)
   }
 }
 

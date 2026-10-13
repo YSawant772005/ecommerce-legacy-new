@@ -41,7 +41,7 @@
           <div class="card-topline"><p class="category">{{ product.categoryName }}</p><span class="rating">★ {{ product.rating.toFixed(1) }}</span></div>
           <h3>{{ product.name }}</h3>
           <div class="price-row"><p class="price">₹{{ product.price.toLocaleString('en-IN') }}</p><p v-if="product.comparePrice" class="compare-price">₹{{ product.comparePrice.toLocaleString('en-IN') }}</p></div>
-          <button @click="addToCart(product.id)" :disabled="!product.inStock"><span>+</span>{{ product.inStock ? 'Add to cart' : 'Out of stock' }}</button>
+          <button :class="{ 'is-adding': cartStore.isAdding(product.id) }" @click="addToCart(product)" :disabled="!product.inStock || cartStore.isAdding(product.id)"><span>{{ cartStore.isAdding(product.id) ? '…' : '+' }}</span>{{ cartStore.isAdding(product.id) ? 'Adding…' : product.inStock ? 'Add to cart' : 'Out of stock' }}</button>
         </div>
       </div>
     </div>
@@ -115,8 +115,8 @@ function scheduleSearch() {
   searchTimer = setTimeout(resetAndLoad, 300)
 }
 
-function addToCart(productId: number) {
-  cartStore.addToCart(productId)
+function addToCart(product: typeof catalogStore.products[number]) {
+  cartStore.addToCart(product.id, 1, undefined, product.name)
 }
 
 async function toggleViewMode() {

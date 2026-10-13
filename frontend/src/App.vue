@@ -22,6 +22,7 @@
     <main class="main-content">
       <router-view />
     </main>
+    <ToastNotifications />
     <footer class="footer">
       <div class="container footer-content">
         <p>&copy; 2026 NovaKart. Curated goods for modern living.</p>
@@ -35,6 +36,7 @@
 import { useAuthStore } from './stores/auth'
 import { useCartStore } from './stores/cart'
 import { onMounted } from 'vue'
+import ToastNotifications from './components/ToastNotifications.vue'
 
 const authStore = useAuthStore()
 const cartStore = useCartStore()

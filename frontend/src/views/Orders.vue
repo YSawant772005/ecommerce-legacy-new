@@ -3,13 +3,14 @@
     <p class="eyebrow">YOUR NOVAKART</p><h1>Order history</h1>
 
     <div v-if="!ordersStore.loading && ordersStore.orders.length > 0">
-      <div v-for="order in ordersStore.orders" :key="order.id" class="order-card">
+      <router-link v-for="order in ordersStore.orders" :key="order.id" :to="`/account/orders/${order.id}`" class="order-card">
         <div class="order-header">
         <div><small>ORDER PLACED {{ new Date(order.createdOn).toLocaleDateString() }}</small><h3>#{{ order.orderNumber }}</h3></div>
           <span class="status">{{ order.status }}</span>
         </div>
-        <p>{{ order.items.length }} item{{ order.items.length === 1 ? '' : 's' }} <span>·</span> ₹{{ order.total }}</p>
-      </div>
+        <OrderItems :items="order.items" />
+        <p class="order-total">{{ order.items.length }} item{{ order.items.length === 1 ? '' : 's' }} <span>·</span> Total ₹{{ order.total }}</p>
+      </router-link>
     </div>
 
     <p v-else-if="!ordersStore.loading">No orders yet</p>
@@ -20,6 +21,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useOrdersStore } from '../stores/orders'
+import OrderItems from '../components/OrderItems.vue'
 
 const ordersStore = useOrdersStore()
 
@@ -38,10 +40,14 @@ onMounted(() => {
 .orders h1 { font-size:clamp(2.8rem,6vw,5rem); letter-spacing:-.08em; margin:.5rem 0 3rem; }
 
 .order-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   background: #fff; border:1px solid #e8e3f1; padding:1.5rem 2rem;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
+.order-card:hover { border-color: #9654db; }
 
 .order-header {
   display: flex;
@@ -63,5 +69,6 @@ onMounted(() => {
 .order-card p {
   margin: 0.5rem 0;
 }
+.order-total { margin-top: 1rem !important; }
 .order-card p span { color:#9654db; margin:0 .4rem; }
 </style>

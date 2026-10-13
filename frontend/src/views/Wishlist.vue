@@ -7,7 +7,7 @@
         <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.productName" />
         <h3>{{ item.productName }}</h3>
         <p class="price">₹{{ item.price }}</p>
-        <button @click="addToCart(item.productId)">Add to Cart</button>
+        <button @click="addToCart(item)" :disabled="cartStore.isAdding(item.productId)">{{ cartStore.isAdding(item.productId) ? 'Adding…' : 'Add to Cart' }}</button>
         <button @click="removeItem(item.productId)" class="remove-btn">Remove</button>
       </div>
     </div>
@@ -25,8 +25,8 @@ import { useCartStore } from '../stores/cart'
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
 
-function addToCart(productId: number) {
-  cartStore.addToCart(productId)
+function addToCart(item: { productId: number; productName: string }) {
+  cartStore.addToCart(item.productId, 1, undefined, item.productName)
 }
 
 function removeItem(productId: number) {
