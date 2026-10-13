@@ -25,7 +25,10 @@
         <option value="rating">Rating</option>
         <option value="new">Newest</option>
       </select>
-        </div>
+      <button class="view-mode-button" type="button" @click="toggleViewMode">
+        {{ viewMode === 'infinite' ? 'Use pagination' : 'Use infinite scroll' }}
+      </button>
+      </div>
 
     <div class="grid" v-if="catalogStore.products.length">
       <div v-for="product in catalogStore.products" :key="product.id" class="card">
@@ -56,12 +59,13 @@
       <span v-else-if="catalogStore.loading" class="loading-indicator"><i></i> Loading more products...</span>
       <span v-else-if="currentPage >= catalogStore.totalPages" class="end-indicator">You reached the end of the collection</span>
       <span v-else class="scroll-hint">Scroll for more products</span>
-      <div class="pagination" aria-label="Product pagination">
+      <div v-if="viewMode === 'pagination'" class="pagination" aria-label="Product pagination">
         <button @click="prevPage" :disabled="currentPage === 1 || catalogStore.loading">← Previous</button>
         <span>Page <strong>{{ currentPage }}</strong> of {{ catalogStore.totalPages }}</span>
         <button @click="nextPage" :disabled="currentPage === catalogStore.totalPages || catalogStore.loading">Next →</button>
       </div>
-      <button v-if="currentPage < catalogStore.totalPages && catalogStore.error" class="load-more-button" @click="retryLoadMore">Load more products</button>
+      <span v-else class="scroll-hint">Infinite scroll is on · scroll to load more</span>
+      <button v-if="viewMode === 'infinite' && currentPage < catalogStore.totalPages && catalogStore.error" class="load-more-button" @click="retryLoadMore">Retry loading</button>
       <div ref="loadMoreMarker" class="load-more-marker" aria-hidden="true"></div>
     </div>
       </div>
@@ -85,6 +89,7 @@ const selectedCategory = ref<number | null>(Number.isFinite(initialCategory) && 
 const searchQuery = ref('')
 const sortBy = ref('popular')
 const currentPage = ref(1)
+const viewMode = ref<'infinite' | 'pagination'>('infinite')
 const loadMoreMarker = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | undefined
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -114,6 +119,16 @@ function addToCart(productId: number) {
   cartStore.addToCart(productId)
 }
 
+async function toggleViewMode() {
+  viewMode.value = viewMode.value === 'infinite' ? 'pagination' : 'infinite'
+  if (viewMode.value === 'pagination') {
+    observer?.disconnect()
+    await resetAndLoad()
+  } else {
+    observeMarker()
+  }
+}
+
 function prevPage() {
   if (currentPage.value > 1) {
     const page = currentPage.value - 1
@@ -138,7 +153,7 @@ async function loadProductsForPage(page: number) {
 }
 
 async function loadMore() {
-  if (currentPage.value >= catalogStore.totalPages || catalogStore.loading || catalogStore.error) return
+  if (viewMode.value !== 'infinite' || currentPage.value >= catalogStore.totalPages || catalogStore.loading || catalogStore.error) return
   const nextPage = currentPage.value + 1
   const loaded = await catalogStore.appendProducts({
     page: nextPage,
@@ -165,7 +180,7 @@ onMounted(() => {
   catalogStore.fetchCategories()
   loadProducts()
   observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting && !catalogStore.loading) loadMore()
+    if (viewMode.value === 'infinite' && entry.isIntersecting && !catalogStore.loading) loadMore()
   }, { rootMargin: '500px' })
   observeMarker()
 })
@@ -194,6 +209,7 @@ onBeforeUnmount(() => observer?.disconnect())
 .search-wrap { display: flex; align-items: center; border: 1px solid #e3dff0; border-radius: 8px; background: #fff; }
 .search-wrap span { padding-left: .9rem; color: #9654db; font-size: 1.3rem; }
 .search-wrap input { border: 0; outline: 0; }
+.view-mode-button { margin-left: auto; min-height: 42px; padding: 0 1rem; border: 1px solid #281568; border-radius: 8px; background: #281568; color: #fff; cursor: pointer; font-size: .72rem; font-weight: 700; white-space: nowrap; }
 .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
 .card { overflow: hidden; border: 1px solid #e9e5f1; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(36,20,95,.04); transition: transform .25s ease, box-shadow .25s ease; }
 .card:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(36,20,95,.12); }
@@ -225,6 +241,7 @@ onBeforeUnmount(() => observer?.disconnect())
 .catalog-error button { padding: .45rem .75rem; border: 1px solid #b33450; border-radius: 999px; background: #fff; color: #b33450; cursor: pointer; }
 .initial-error { justify-content: center; margin: 2rem 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 650px) { .view-mode-button { width: 100%; margin-left: 0; } }
 .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1.5rem; }
 .filter-rail { align-self: start; position: sticky; top: 1rem; padding: 1rem; border: 1px solid #e5e0ef; border-radius: 14px; background: #fff; }
 .rail-title { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #eeeaf4; color: #24145f; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
