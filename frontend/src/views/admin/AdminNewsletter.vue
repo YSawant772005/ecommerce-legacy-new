@@ -1,25 +1,42 @@
 <template>
-  <div class="admin-newsletter">
-    <h1>Newsletter Subscribers</h1>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Subscribed On</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="subscriber in subscribers" :key="subscriber.id">
-          <td>{{ subscriber.email }}</td>
-          <td>{{ new Date(subscriber.subscribedOn).toLocaleDateString() }}</td>
-          <td>
-            <button @click="deleteSubscriber(subscriber.id)" class="btn-small btn-danger">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-lime">AUDIENCE AUDIT</span>
+          <h1 class="admin-view-title">Newsletter Subscribers</h1>
+        </div>
+      </header>
+
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Subscriber Email</th>
+              <th>Subscribed On</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="subscriber in subscribers" :key="subscriber.id">
+              <td><strong>{{ subscriber.email }}</strong></td>
+              <td>{{ new Date(subscriber.subscribedOn).toLocaleDateString() }}</td>
+              <td>
+                <span class="badge-pill badge-lime">Subscribed</span>
+              </td>
+              <td>
+                <button @click="deleteSubscriber(subscriber.id)" class="admin-action-btn delete">Unsubscribe / Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -35,7 +52,7 @@ async function loadSubscribers() {
 }
 
 async function deleteSubscriber(id: number) {
-  if (confirm('Are you sure?')) {
+  if (confirm('Are you sure you want to remove this subscriber?')) {
     await api.delete(`/admin/newsletter/${id}`)
     loadSubscribers()
   }
@@ -45,41 +62,3 @@ onMounted(() => {
   loadSubscribers()
 })
 </script>
-
-<style scoped>
-.admin-newsletter {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-
-.btn-small {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-danger {
-  background: #e63946;
-  color: white;
-}
-</style>

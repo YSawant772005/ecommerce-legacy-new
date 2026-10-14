@@ -1,53 +1,76 @@
 <template>
-  <div class="admin-brands">
-    <h1>Manage Brands</h1>
-    <button @click="showModal = true" class="btn-primary">Add Brand</button>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Slug</th>
-          <th>Code</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="brand in brands" :key="brand.id">
-          <td>{{ brand.id }}</td>
-          <td>{{ brand.name }}</td>
-          <td>{{ brand.slug }}</td>
-          <td>{{ brand.code }}</td>
-          <td>
-            <button @click="editBrand(brand)" class="btn-small">Edit</button>
-            <button @click="deleteBrand(brand.id)" class="btn-small btn-danger">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-purple">BRAND REGISTRY</span>
+          <h1 class="admin-view-title">Manage Brands</h1>
+        </div>
+        <button @click="showModal = true" class="btn-pill btn-pill-primary">
+          <span>+ Add Brand</span>
+        </button>
+      </header>
 
-    <div class="modal" v-if="showModal">
-      <div class="modal-content">
-        <h2>{{ editingBrand ? 'Edit Brand' : 'Add Brand' }}</h2>
-        <form @submit.prevent="saveBrand">
-          <div class="form-group">
-            <label>Name</label>
-            <input v-model="form.name" required />
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Brand Name</th>
+              <th>Slug</th>
+              <th>Internal Code</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="brand in brands" :key="brand.id">
+              <td><strong>#{{ brand.id }}</strong></td>
+              <td><strong>{{ brand.name }}</strong></td>
+              <td>{{ brand.slug }}</td>
+              <td><code>{{ brand.code || '—' }}</code></td>
+              <td>
+                <button @click="editBrand(brand)" class="admin-action-btn">Edit</button>
+                <button @click="deleteBrand(brand.id)" class="admin-action-btn delete">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal -->
+      <div class="admin-modal-backdrop" v-if="showModal" @click.self="closeModal">
+        <div class="admin-modal-window">
+          <div class="admin-modal-header">
+            <h2>{{ editingBrand ? 'Edit Brand' : 'Add Brand' }}</h2>
+            <button class="admin-action-btn" @click="closeModal">✕</button>
           </div>
-          <div class="form-group">
-            <label>Slug</label>
-            <input v-model="form.slug" required />
-          </div>
-          <div class="form-group">
-            <label>Code</label>
-            <input v-model="form.code" />
-          </div>
-          <div class="form-actions">
-            <button type="submit">Save</button>
-            <button type="button" @click="closeModal">Cancel</button>
-          </div>
-        </form>
+
+          <form @submit.prevent="saveBrand">
+            <div class="admin-form-group">
+              <label>Brand Name</label>
+              <input v-model="form.name" required placeholder="e.g. Bang & Olufsen" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Slug</label>
+              <input v-model="form.slug" required placeholder="e.g. bang-olufsen" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Brand Code</label>
+              <input v-model="form.code" placeholder="e.g. BO-01" />
+            </div>
+
+            <div class="admin-form-actions">
+              <button type="button" @click="closeModal" class="btn-pill btn-pill-outline">Cancel</button>
+              <button type="submit" class="btn-pill btn-pill-primary">Save Brand</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -89,7 +112,7 @@ async function saveBrand() {
 }
 
 async function deleteBrand(id: number) {
-  if (confirm('Are you sure?')) {
+  if (confirm('Are you sure you want to delete this brand?')) {
     await api.delete(`/admin/brands/${id}`)
     loadBrands()
   }
@@ -105,100 +128,3 @@ onMounted(() => {
   loadBrands()
 })
 </script>
-
-<style scoped>
-.admin-brands {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.btn-primary {
-  background: #e63946;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-
-.btn-small {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-danger {
-  background: #e63946;
-  color: white;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 400px;
-  width: 90%;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.form-actions button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-</style>

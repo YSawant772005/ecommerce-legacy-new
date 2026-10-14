@@ -1,75 +1,106 @@
 <template>
-  <div class="admin-categories">
-    <h1>Manage Categories</h1>
-    <button @click="showModal = true" class="-btn-primary">Add Category</button>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Slug</th>
-          <th>Tagline</th>
-          <th>Order</th>
-          <th>Active</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="category in categories" :key="category.id">
-          <td>{{ category.id }}</td>
-          <td>{{ category.name }}</td>
-          <td>{{ category.slug }}</td>
-          <td>{{ category.tagline }}</td>
-          <td>{{ category.displayOrder }}</td>
-          <td>{{ category.isActive ? 'Yes' : 'No' }}</td>
-          <td>
-            <button @click="editCategory(category)" class="btn-small">Edit</button>
-            <button @click="deleteCategory(category.id)" class="btn-small btn-danger">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-purple">TAXONOMY CONTROL</span>
+          <h1 class="admin-view-title">Manage Categories</h1>
+        </div>
+        <button @click="showModal = true" class="btn-pill btn-pill-primary">
+          <span>+ Add Category</span>
+        </button>
+      </header>
 
-    <div class="modal" v-if="showModal">
-      <div class="modal-content">
-        <h2>{{ editingCategory ? 'Edit Category' : 'Add Category' }}</h2>
-        <form @submit.prevent="saveCategory">
-          <div class="form-group">
-            <label>Name</label>
-            <input v-model="form.name" required />
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Tagline</th>
+              <th>Order</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="category in categories" :key="category.id">
+              <td><strong>#{{ category.id }}</strong></td>
+              <td><strong>{{ category.name }}</strong></td>
+              <td>{{ category.slug }}</td>
+              <td>{{ category.tagline || '—' }}</td>
+              <td>{{ category.displayOrder }}</td>
+              <td>
+                <span class="badge-pill" :class="category.isActive ? 'badge-lime' : 'badge-discount'">
+                  {{ category.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <button @click="editCategory(category)" class="admin-action-btn">Edit</button>
+                <button @click="deleteCategory(category.id)" class="admin-action-btn delete">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal -->
+      <div class="admin-modal-backdrop" v-if="showModal" @click.self="closeModal">
+        <div class="admin-modal-window">
+          <div class="admin-modal-header">
+            <h2>{{ editingCategory ? 'Edit Category' : 'Add Category' }}</h2>
+            <button class="admin-action-btn" @click="closeModal">✕</button>
           </div>
-          <div class="form-group">
-            <label>Slug</label>
-            <input v-model="form.slug" required />
-          </div>
-          <div class="form-group">
-            <label>Tagline</label>
-            <input v-model="form.tagline" />
-          </div>
-          <div class="form-group">
-            <label>Description</label>
-            <textarea v-model="form.description" rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Image URL</label>
-            <input v-model="form.imageUrl" />
-          </div>
-          <div class="form-group">
-            <label>Display Order</label>
-            <input v-model.number="form.displayOrder" type="number" />
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" v-model="form.isActive" />
-              Active
-            </label>
-          </div>
-          <div class="form-actions">
-            <button type="submit">Save</button>
-            <button type="button" @click="closeModal">Cancel</button>
-          </div>
-        </form>
+
+          <form @submit.prevent="saveCategory">
+            <div class="admin-form-group">
+              <label>Category Name</label>
+              <input v-model="form.name" required placeholder="e.g. Modern Audio" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Slug</label>
+              <input v-model="form.slug" required placeholder="e.g. modern-audio" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Tagline</label>
+              <input v-model="form.tagline" placeholder="Short descriptive tagline" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Description</label>
+              <textarea v-model="form.description" rows="3"></textarea>
+            </div>
+
+            <div class="admin-form-group">
+              <label>Image URL</label>
+              <input v-model="form.imageUrl" placeholder="https://..." />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Display Order</label>
+              <input v-model.number="form.displayOrder" type="number" />
+            </div>
+
+            <div class="admin-form-group">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" v-model="form.isActive" />
+                Active on Storefront
+              </label>
+            </div>
+
+            <div class="admin-form-actions">
+              <button type="button" @click="closeModal" class="btn-pill btn-pill-outline">Cancel</button>
+              <button type="submit" class="btn-pill btn-pill-primary">Save Category</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -115,7 +146,7 @@ async function saveCategory() {
 }
 
 async function deleteCategory(id: number) {
-  if (confirm('Are you sure?')) {
+  if (confirm('Are you sure you want to delete this category?')) {
     await api.delete(`/admin/categories/${id}`)
     loadCategories()
   }
@@ -140,101 +171,3 @@ onMounted(() => {
   loadCategories()
 })
 </script>
-
-<style scoped>
-.admin-categories {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.btn-primary {
-  background: #e63946;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-
-.btn-small {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-danger {
-  background: #e63946;
-  color: white;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.form-actions button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-</style>

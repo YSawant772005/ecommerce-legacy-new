@@ -1,92 +1,130 @@
 <template>
-  <div class="admin-coupons">
-    <h1>Manage Coupons</h1>
-    <button @click="showModal = true" class="btn-primary">Add Coupon</button>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Description</th>
-          <th>Min Order</th>
-          <th>Discount</th>
-          <th>Free Shipping</th>
-          <th>Active</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="coupon in coupons" :key="coupon.id">
-          <td>{{ coupon.code }}</td>
-          <td>{{ coupon.description }}</td>
-          <td>₹{{ coupon.minOrderValue }}</td>
-          <td>
-            <span v-if="coupon.fixedAmount > 0">₹{{ coupon.fixedAmount }}</span>
-            <span v-else-if="coupon.percentDiscount > 0">{{ coupon.percentDiscount }}%</span>
-          </td>
-          <td>{{ coupon.freeShipping ? 'Yes' : 'No' }}</td>
-          <td>{{ coupon.isActive ? 'Yes' : 'No' }}</td>
-          <td>
-            <button @click="editCoupon(coupon)" class="btn-small">Edit</button>
-            <button @click="deleteCoupon(coupon.id)" class="btn-small btn-danger">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-lime">PROMOTIONAL ENGINE</span>
+          <h1 class="admin-view-title">Manage Coupons</h1>
+        </div>
+        <button @click="showModal = true" class="btn-pill btn-pill-primary">
+          <span>+ Add Coupon</span>
+        </button>
+      </header>
 
-    <div class="modal" v-if="showModal">
-      <div class="modal-content">
-        <h2>{{ editingCoupon ? 'Edit Coupon' : 'Add Coupon' }}</h2>
-        <form @submit.prevent="saveCoupon">
-          <div class="form-group">
-            <label>Code</label>
-            <input v-model="form.code" required />
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Promo Code</th>
+              <th>Description</th>
+              <th>Min Order</th>
+              <th>Discount Value</th>
+              <th>Free Shipping</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="coupon in coupons" :key="coupon.id">
+              <td><strong><code>{{ coupon.code }}</code></strong></td>
+              <td>{{ coupon.description || '—' }}</td>
+              <td>₹{{ coupon.minOrderValue.toLocaleString('en-IN') }}</td>
+              <td>
+                <span v-if="coupon.fixedAmount > 0" class="badge-pill badge-lime">₹{{ coupon.fixedAmount }} OFF</span>
+                <span v-else-if="coupon.percentDiscount > 0" class="badge-pill badge-purple">{{ coupon.percentDiscount }}% OFF</span>
+                <span v-else>—</span>
+              </td>
+              <td>{{ coupon.freeShipping ? '✓ Yes' : 'No' }}</td>
+              <td>
+                <span class="badge-pill" :class="coupon.isActive ? 'badge-lime' : 'badge-discount'">
+                  {{ coupon.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <button @click="editCoupon(coupon)" class="admin-action-btn">Edit</button>
+                <button @click="deleteCoupon(coupon.id)" class="admin-action-btn delete">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal -->
+      <div class="admin-modal-backdrop" v-if="showModal" @click.self="closeModal">
+        <div class="admin-modal-window">
+          <div class="admin-modal-header">
+            <h2>{{ editingCoupon ? 'Edit Coupon' : 'Add Promo Coupon' }}</h2>
+            <button class="admin-action-btn" @click="closeModal">✕</button>
           </div>
-          <div class="form-group">
-            <label>Description</label>
-            <input v-model="form.description" />
-          </div>
-          <div class="form-group">
-            <label>Min Order Value</label>
-            <input v-model.number="form.minOrderValue" type="number" />
-          </div>
-          <div class="form-group">
-            <label>Fixed Amount (₹)</label>
-            <input v-model.number="form.fixedAmount" type="number" />
-          </div>
-          <div class="form-group">
-            <label>Percent Discount (%)</label>
-            <input v-model.number="form.percentDiscount" type="number" />
-          </div>
-          <div class="form-group">
-            <label>Max Discount Amount (₹)</label>
-            <input v-model.number="form.maxDiscountAmount" type="number" />
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" v-model="form.freeShipping" />
-              Free Shipping
-            </label>
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" v-model="form.isActive" />
-              Active
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Start Date</label>
-            <input v-model="form.startsOn" type="date" />
-          </div>
-          <div class="form-group">
-            <label>End Date</label>
-            <input v-model="form.endsOn" type="date" />
-          </div>
-          <div class="form-actions">
-            <button type="submit">Save</button>
-            <button type="button" @click="closeModal">Cancel</button>
-          </div>
-        </form>
+
+          <form @submit.prevent="saveCoupon">
+            <div class="admin-form-group">
+              <label>Promo Code</label>
+              <input v-model="form.code" required placeholder="e.g. NOVA20" />
+            </div>
+
+            <div class="admin-form-group">
+              <label>Description</label>
+              <input v-model="form.description" placeholder="e.g. 20% off on all autumn drops" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="admin-form-group">
+                <label>Min Order Value (₹)</label>
+                <input v-model.number="form.minOrderValue" type="number" />
+              </div>
+
+              <div class="admin-form-group">
+                <label>Fixed Discount (₹)</label>
+                <input v-model.number="form.fixedAmount" type="number" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="admin-form-group">
+                <label>Percent Discount (%)</label>
+                <input v-model.number="form.percentDiscount" type="number" />
+              </div>
+
+              <div class="admin-form-group">
+                <label>Max Discount Amount (₹)</label>
+                <input v-model.number="form.maxDiscountAmount" type="number" />
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; margin: 0.8rem 0;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.88rem;">
+                <input type="checkbox" v-model="form.freeShipping" />
+                Include Free Shipping
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.88rem;">
+                <input type="checkbox" v-model="form.isActive" />
+                Active on Checkout
+              </label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="admin-form-group">
+                <label>Start Date</label>
+                <input v-model="form.startsOn" type="date" />
+              </div>
+
+              <div class="admin-form-group">
+                <label>End Date</label>
+                <input v-model="form.endsOn" type="date" />
+              </div>
+            </div>
+
+            <div class="admin-form-actions">
+              <button type="button" @click="closeModal" class="btn-pill btn-pill-outline">Cancel</button>
+              <button type="submit" class="btn-pill btn-pill-primary">Save Coupon</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -143,7 +181,7 @@ async function saveCoupon() {
 }
 
 async function deleteCoupon(id: number) {
-  if (confirm('Are you sure?')) {
+  if (confirm('Are you sure you want to delete this coupon?')) {
     await api.delete(`/admin/coupons/${id}`)
     loadCoupons()
   }
@@ -171,102 +209,3 @@ onMounted(() => {
   loadCoupons()
 })
 </script>
-
-<style scoped>
-.admin-coupons {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.btn-primary {
-  background: #e63946;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-
-.btn-small {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-danger {
-  background: #e63946;
-  color: white;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.form-actions button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-</style>

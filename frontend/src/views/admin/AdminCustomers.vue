@@ -1,29 +1,44 @@
 <template>
-  <div class="admin-customers">
-    <h1>Manage Customers</h1>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Orders</th>
-          <th>Total Spend</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="customer in customers" :key="customer.id">
-          <td>{{ customer.id }}</td>
-          <td>{{ customer.fullName }}</td>
-          <td>{{ customer.email }}</td>
-          <td>{{ customer.phone || '-' }}</td>
-          <td>{{ customer.orderCount }}</td>
-          <td>₹{{ customer.totalSpend }}</td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-purple">CUSTOMER DIRECTORY</span>
+          <h1 class="admin-view-title">Manage Customers</h1>
+        </div>
+      </header>
+
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Orders Count</th>
+              <th>Lifetime Spend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="customer in customers" :key="customer.id">
+              <td><strong>#{{ customer.id }}</strong></td>
+              <td><strong>{{ customer.fullName }}</strong></td>
+              <td>{{ customer.email }}</td>
+              <td>{{ customer.phone || '—' }}</td>
+              <td>
+                <span class="badge-pill badge-lime">{{ customer.orderCount }} orders</span>
+              </td>
+              <td><strong>₹{{ customer.totalSpend.toLocaleString('en-IN') }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -42,28 +57,3 @@ onMounted(() => {
   loadCustomers()
 })
 </script>
-
-<style scoped>
-.admin-customers {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-</style>

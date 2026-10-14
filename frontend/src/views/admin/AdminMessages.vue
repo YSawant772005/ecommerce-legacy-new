@@ -1,31 +1,44 @@
 <template>
-  <div class="admin-messages">
-    <h1>Contact Messages</h1>
+  <div class="admin-view-page">
+    <div class="container">
+      <router-link to="/admin" class="admin-back-btn">
+        <span>← Back to Mission Control</span>
+      </router-link>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Subject</th>
-          <th>Message</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="message in messages" :key="message.id">
-          <td>{{ message.fullName }}</td>
-          <td>{{ message.email }}</td>
-          <td>{{ message.subject }}</td>
-          <td>{{ message.body }}</td>
-          <td>{{ new Date(message.createdOn).toLocaleDateString() }}</td>
-          <td>
-            <button @click="deleteMessage(message.id)" class="btn-small btn-danger">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <header class="admin-view-header">
+        <div>
+          <span class="badge-pill badge-purple">SUPPORT INBOX</span>
+          <h1 class="admin-view-title">Contact Messages</h1>
+        </div>
+      </header>
+
+      <div class="admin-table-panel">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>Email</th>
+              <th>Subject</th>
+              <th>Message Content</th>
+              <th>Received</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="message in messages" :key="message.id">
+              <td><strong>{{ message.fullName }}</strong></td>
+              <td>{{ message.email }}</td>
+              <td><strong>{{ message.subject }}</strong></td>
+              <td style="max-width: 320px; color: var(--text-muted);">{{ message.body }}</td>
+              <td>{{ new Date(message.createdOn).toLocaleDateString() }}</td>
+              <td>
+                <button @click="deleteMessage(message.id)" class="admin-action-btn delete">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -41,7 +54,7 @@ async function loadMessages() {
 }
 
 async function deleteMessage(id: number) {
-  if (confirm('Are you sure?')) {
+  if (confirm('Are you sure you want to delete this message?')) {
     await api.delete(`/admin/messages/${id}`)
     loadMessages()
   }
@@ -51,41 +64,3 @@ onMounted(() => {
   loadMessages()
 })
 </script>
-
-<style scoped>
-.admin-messages {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-  background: #667eea;
-  color: white;
-}
-
-.btn-small {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-danger {
-  background: #e63946;
-  color: white;
-}
-</style>
